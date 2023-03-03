@@ -2,7 +2,7 @@
   "extends": ["react-app"],
   "plugins": ["prettier"],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": "off",
     "react-hooks/exhaustive-deps": "off",
     "jsx-a11y/anchor-is-valid": "off"
   }

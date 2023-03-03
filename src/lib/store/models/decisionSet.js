@@ -1,5 +1,5 @@
 import produce, { immerable } from 'immer';
-import md5 from 'md5';
+import md6 from 'md5';
 
 import { AND, OR, NORMAL } from '../../constants/conditionType';
 import { INPUT, CONSTANT, VARIABLE, FUNC } from '../../constants/valueType';
@@ -7,7 +7,10 @@ import { VARIABLE_ASSIGN, EXECUTE_METHOD } from '../../constants/actionType';
 import { CONDITION_RULE } from '../../constants/ruleType';
 import { NO_PUBLIC_RULE } from '../../constants/rulePublic';
 import { getNode, getValueType } from '../../utils/decisionSet';
-
+function  md5(data){
+  console.log(data);
+  return md6(data);
+}
 class Condition {
   constructor(props) {
     this.id = props.id;
@@ -102,44 +105,60 @@ class ValueType {
       value: this.value
     };
   }
+  
+  resetData() {
+    if (this.type === INPUT) {
+      this.data = this.value;
+      return;
+    }
+    this.data = JSON.stringify(this.value);
+  }
 
   init(value) {
     if (!this.type) return {};
 
     if (this.type === INPUT) {
+	    this.data = value;
       return value;
     }
 
     if (this.type === CONSTANT) {
-      return {
+	   let temp = {
         dicts: value.dicts, // 该字典元数据
         dictType: value.dictType, // 字典类型
         dictTypeLabel: value.dictTypeLabel,
         code: value.code, // 字典码值
         label: value.label
       };
+	    this.data = JSON.stringify(temp);
+      return temp;
     }
 
     if (this.type === VARIABLE) {
-      return {
-        dicts: value.dicts,
-        groupCode: value.groupCode,
-        groupLabel: value.groupLabel,
-        propCode: value.propCode,
-        propLabel: value.propLabel
-      };
+      let temp = {
+          dicts: value.dicts,
+          groupCode: value.groupCode,
+          groupLabel: value.groupLabel,
+          propCode: value.propCode,
+          propLabel: value.propLabel
+        };
+	    this.data = JSON.stringify(temp);		
+      return temp;
     }
 
     if (this.type === FUNC) {
-      return {
+	    let temp = {
         actionName: value.actionName,
         methodName: value.methodName,
         methodLabel: value.methodLabel,
         parameters: value.parameters.map(param => {
-          param.value = new ValueType(param.value);
+          // 初始化
+          param.value = new ValueType(param.value||'');
           return param;
         })
       };
+	    this.data = JSON.stringify(temp);
+      return temp;
     }
   }
 }
@@ -255,7 +274,7 @@ export default {
         const valueTypeModel = getValueType([target], valueId);
 
         valueTypeModel.type = valueType;
-        valueTypeModel.value = value;
+        valueTypeModel.getValue().value = value;
       });
     },
 
@@ -340,21 +359,53 @@ export default {
     // 设置表达式的 left 和 right
     setExpression(state, { payload }) {
       const { id, position, valueId, valueType, value } = payload;
-
+      console.log("setExpression",payload)
       return produce(state, draft => {
         const target = getNode(draft.conditionRules.map(i => i.rootCondition), id);
 
         const valueTypeModel = getValueType([target.expression[position]], valueId);
-
+       
         valueTypeModel.type = valueType;
-        valueTypeModel.value = value;
+        valueTypeModel.value = valueTypeModel.init(value);
+        
+        try {
+          target.expression[position].resetData();
+        }
+        catch (e){
+        }
+        
+          const idArr = valueId.split('@');
+          if (idArr.length>1){
+            let index = 0;
+            let temp2 = "";
+            for (const k of idArr) {
+              if (index === 0){
+                temp2 += (k+"@");
+                index++;
+                continue;
+              }
+              let temp = valueId.replace(temp2,"");
+              try {
+                const valueTypeModel2 =  getValueType([target.expression[position]], temp);
+                valueTypeModel2.resetData();
+              }
+              catch (e){
+              }
+              index++;
+              temp2 += (k+"@");
+
+            }
+            
+          }
+       
+       
       });
     },
 
     // 改变操作符
     changeOperator(state, { payload }) {
       const { id, label, charator } = payload;
-
+      console.log("changeOperator",payload)
       return produce(state, draft => {
         const target = getNode(draft.conditionRules.map(i => i.rootCondition), id);
         target.expression.operator = {
@@ -372,15 +423,16 @@ export default {
     // 添加一个值选择
     addValueTypeToCondition(state, { payload }) {
       const { id, parentId, position } = payload;
-
+      console.log("addValueTypeToCondition",payload)
       return produce(state, draft => {
         const target = getNode(draft.conditionRules.map(i => i.rootCondition), id);
 
         // 只有函数参数才存在继续添加值类型的情况
         if (parentId) {
           const valueTypeModel = getValueType([target.expression[position]], parentId);
+          console.log(valueTypeModel.value);
           valueTypeModel.value.parameters.forEach(param => {
-            param.value = new ValueType({ id: md5('' + Date.now() + Math.random()), type: null });
+            param.value = new ValueType({ id: md5('' + Date.now() + Math.random()) + "@" + parentId, type: null });
           });
         } else {
           target.expression[position] = new ValueType({ id: md5('' + Date.now() + Math.random()), type: null });
@@ -391,7 +443,7 @@ export default {
     // 添加一个动作
     addAction(state, { payload }) {
       const { ruleId, position } = payload;
-
+      console.log("addAction",payload)
       return produce(state, draft => {
         let target;
 
@@ -409,7 +461,7 @@ export default {
     // 删除一个动作
     deleteAction(state, { payload }) {
       const { ruleId, id, position } = payload;
-
+      console.log("deleteAction",payload)
       return produce(state, draft => {
         let target;
 
@@ -429,7 +481,7 @@ export default {
     // 设置动作类型：变量赋值或者执行方法
     setActionType(state, { payload }) {
       const { ruleId, id, type, position } = payload;
-
+      console.log("setActionType",payload)
       return produce(state, draft => {
         let target;
 
@@ -458,7 +510,7 @@ export default {
     // 改变动作的值
     setActionValue(state, { payload }) {
       const { ruleId, id, position, valueId, valueType, value } = payload;
-
+      console.log("setActionValue",payload)
       return produce(state, draft => {
         let target;
 
@@ -487,7 +539,7 @@ export default {
     // 为动作的函数添加值类型
     addValueTypeToAction(state, { payload }) {
       const { ruleId, id, parentId, position } = payload;
-
+      console.log("addValueTypeToAction",payload)
       return produce(state, draft => {
         let target;
 
