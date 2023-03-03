@@ -1,5 +1,5 @@
 import produce, { immerable } from 'immer';
-import md6 from 'md5';
+import md5 from 'md5';
 
 import { AND, OR, NORMAL } from '../../constants/conditionType';
 import { INPUT, CONSTANT, VARIABLE, FUNC } from '../../constants/valueType';
@@ -7,10 +7,7 @@ import { VARIABLE_ASSIGN, EXECUTE_METHOD } from '../../constants/actionType';
 import { CONDITION_RULE } from '../../constants/ruleType';
 import { NO_PUBLIC_RULE } from '../../constants/rulePublic';
 import { getNode, getValueType } from '../../utils/decisionSet';
-function  md5(data){
-  console.log(data);
-  return md6(data);
-}
+
 class Condition {
   constructor(props) {
     this.id = props.id;
