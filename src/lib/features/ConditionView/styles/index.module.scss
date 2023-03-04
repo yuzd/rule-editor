@@ -33,7 +33,7 @@ $borderColor: #c9c9c9;
     width: $gap;
     height: 1px;
     background-color: $borderColor;
-    top: 12px; // 这个无法计算，除非写死每个item的高度
+    top: 11px; // 这个无法计算，除非写死每个item的高度
     right: -$gap;
   }
 }
