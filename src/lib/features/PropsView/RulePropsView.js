@@ -112,14 +112,14 @@ const RulePropsView = props => {
             </p>
           )}
         </Form.Item>
-        <Form.Item label="是否公共规则">
+        <Form.Item label="是否公共规则" style={{display:"none"}}>
           <Switch
             disabled={disabled}
             checked={attrs.ruleIsPublic == IS_PUBLIC_RULE}
             onChange={e => handleFieldValueChange('ruleIsPublic', e ? IS_PUBLIC_RULE : NO_PUBLIC_RULE)}
           />
         </Form.Item>
-        <Form.Item label="是否循环规则">
+        <Form.Item label="是否循环规则"  style={{display:"none"}}>
           <Switch
             disabled={disabled}
             checked={attrs.ruleType == LOOP_RULE}

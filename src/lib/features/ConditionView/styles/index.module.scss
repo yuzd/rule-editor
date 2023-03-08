@@ -15,7 +15,7 @@ $borderColor: #c9c9c9;
     height: 100%;
     background-color: #fff;
     z-index: 9;
-    top: 13px;
+    top: 12px;
     left: -$gap - 1px;
   }
 }
@@ -33,8 +33,10 @@ $borderColor: #c9c9c9;
     width: $gap;
     height: 1px;
     background-color: $borderColor;
-    top: 11px; // 这个无法计算，除非写死每个item的高度
+    top: 0; // 这个无法计算，除非写死每个item的高度
     right: -$gap;
+    bottom: 0;
+    margin: auto;
   }
 }
 
@@ -42,7 +44,8 @@ $borderColor: #c9c9c9;
   box-sizing: border-box;
   display: inline-block;
   position: relative;
-  margin-bottom: 4px;
+  line-height: 30px;
+  //margin-bottom: 4px;
 
   &::before {
     content: '';
@@ -51,8 +54,9 @@ $borderColor: #c9c9c9;
     height: 1px;
     margin: auto;
     background-color: $borderColor;
-    top: 0;
+    top: -1px;
     bottom: 0;
+    z-index: 99;
     left: -$gap - 1px;
   }
 }
@@ -69,8 +73,7 @@ $borderColor: #c9c9c9;
 
 .condition {
   position: relative;
-  padding: 3px $gap;
-
+  padding: 0px $gap;
   &:first-child {
     // margin-top: -$gap / 2;
   }
@@ -79,7 +82,7 @@ $borderColor: #c9c9c9;
 .cover-line {
   position: absolute;
   width: 2px;
-  height: 50%;
+  height: 15px;
   background-color: #fff;
   z-index: 9;
 }
@@ -90,6 +93,6 @@ $borderColor: #c9c9c9;
 }
 
 .cover-line--bottom {
-  bottom: 1px;
+  bottom: 2px;
   left: -1px;
 }
